@@ -1,8 +1,8 @@
 # Grpc.Gateway
 
-一个基于 ASP.NET Core 终结点路由打造的扩展，可以让你像调用一个 JSON API 一样调用 gRpc。
+一个基于 ASP.NET Core 终结点路由打造的扩展，可以让你像调用一个 JSON API 一样调用 gRpc。其原理是，
 
-其原理是，通过反射和表达式树为每一个 gRPC 客户端生成动态路由，并由该扩展完成 JSON -> Protobuf -> JSON 的转换。
+> 通过反射和表达式树为每一个 gRPC 客户端生成动态路由，并由该扩展完成 JSON -> Protobuf -> JSON 的转换。
 
 # 如何使用
 
@@ -39,7 +39,7 @@ message HelloReply {
     <Protobuf Include="Protos\greet.proto" GrpcServices="Both" />
 </ItemGroup>
 ```
-更多细节，请参考：ExampleService
+更多细节，请参考：[ExampleService](https://github.com/qinyuanpei/Grpc.Gateway/tree/master/src/Example/ExampleService)
 
 * 配置网关
 
@@ -66,7 +66,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 }
 ```
 
-更多细节，请参考：ExampleGateway
+更多细节，请参考：[ExampleGateway](https://github.com/qinyuanpei/Grpc.Gateway/tree/master/src/Example/ExampleGateway)
 
 * 调用接口
 
