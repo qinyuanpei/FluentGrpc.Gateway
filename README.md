@@ -1,5 +1,7 @@
 # Grpc.Gateway
 
+[中文](https://github.com/qinyuanpei/Grpc.Gateway/blob/master/README_CN.md) | [English](https://github.com/qinyuanpei/Grpc.Gateway/blob/master/README.md)
+
 An extension based on ASP.NET Core endpoint routing that allows you to call gRpc just like a JSON API. And the idea is,
 
 > Generate dynamic routes for each gRPC client through reflection and expression tree, and the `JSON` -> `Protobuf` -> `JSON` transformation is completed by this extension. 
