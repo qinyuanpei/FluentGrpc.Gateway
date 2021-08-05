@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Grpc.Gateway.Core\Grpc.Gateway.csproj" />
-    <ProjectReference Include="..\GreetService\ExampleService.csproj" />
+    <ProjectReference Include="..\..\Grpc.Gateway\Grpc.Gateway.csproj" />
+    <ProjectReference Include="..\ExampleService\ExampleService.csproj" />
   </ItemGroup>
 	
 </Project>

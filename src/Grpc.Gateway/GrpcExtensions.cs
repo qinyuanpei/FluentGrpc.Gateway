@@ -31,7 +31,7 @@ namespace Grpc.Gateway
                 {
                     var methodName = method.Name.Replace("Async", "");
                     var grpcRoute = $"{serviceName}/{methodName}";
-                    logger.LogInformation($"Add gRPC Gateway: {grpcRoute}");
+                    logger.LogInformation($"Generate gRPC Gateway: {grpcRoute}");
                     app.UseEndpoints(endpoints => endpoints.MapPost($"{grpcRoute}", async context =>
                     {
                         using (var streamReader = new StreamReader(context.Request.Body))

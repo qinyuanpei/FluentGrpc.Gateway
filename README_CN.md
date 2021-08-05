@@ -1,8 +1,8 @@
 # Grpc.Gateway
 
-一个基于 ASP.NET Core 终结点路由打造的扩展，可以让你像调用一个 JSON API 一样调用 gRpc。其原理是，
+一个基于 `ASP.NET Core` 终结点路由打造的扩展，可以让你像调用一个 `JSON API` 一样调用 `gRpc`。其原理是，
 
-> 通过反射和表达式树为每一个 gRPC 客户端生成动态路由，并由该扩展完成 JSON -> Protobuf -> JSON 的转换。
+> 通过反射和表达式树为每一个 `gRPC` 客户端生成动态路由，并由该扩展完成 `JSON` -> `Protobuf` -> `JSON` 的转换。
 
 # 如何使用
 
@@ -32,7 +32,7 @@ message HelloReply {
 }
 ```
 
-请确保该项目可以同时生成 gRPC 客户端和服务端的代码，因为网关中需要用到 gRPC 客户端。
+请确保该项目可以同时生成 `gRPC` 客户端和服务端的代码，因为网关中需要用到 `gRPC` 客户端。
 
 ```xml
 <ItemGroup>
@@ -70,9 +70,9 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 * 调用接口
 
-对于 gRPC 客户端 `Greeter.GreeterClient` 的 `SayHelloAsync()` 方法，其生成的默认路由为：`/Greeter/SayHello`，即移除`Client` 和 `Async` 部分。
+对于 `gRPC` 客户端 `Greeter.GreeterClient` 的 `SayHelloAsync()` 方法，其生成的默认路由为：`/Greeter/SayHello`，即移除`Client` 和 `Async` 部分。
 
-此时，我们只需要使用 Postman 或者 crul 以 POST 方式调用接口即可，Enjoy :)
+此时，我们只需要使用 `Postman` 或者 `crul` 以 `POST` 方式调用接口即可，Enjoy :)
 
 
 
