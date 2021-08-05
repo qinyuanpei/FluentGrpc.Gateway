@@ -71,7 +71,7 @@ For more details, see：[ExampleGateway](https://github.com/qinyuanpei/Grpc.Gate
 
 * Consume your service
 
-For the `SayHelloAsync()` method of the gRPC Client `greeter.greeterclient`, the default route generated is: `/Greeter/SayHello`, which removes the `Client` and `Async` parts.  
+For the `SayHelloAsync()` method of the gRPC Client `Greeter.GreeterClient`, the default route generated is: `/Greeter/SayHello`, which removes the `Client` and `Async` parts.  
 
 At this point, we just need to use Postman or crul to consume the interface. Enjoy :)  
 

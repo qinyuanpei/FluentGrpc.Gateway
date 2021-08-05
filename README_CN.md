@@ -76,6 +76,5 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 此时，我们只需要使用 `Postman` 或者 `crul` 以 `POST` 方式调用接口即可，Enjoy :)
 
-
-
+![像调用一个 JSON API 一样调用 gRpc](https://raw.fastgit.org/qinyuanpei/Grpc.Gateway/master/src/Example/Screenshots/Apifox.png)
 
