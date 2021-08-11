@@ -37,7 +37,7 @@ jobs:
           with:
             name: nuget_pkgs
         - name: Show NuGet Packages
-          run: ls nugetpkgs
+          run: ls nuget_pkgs
         - name: Show .NET Version
           run: dotnet --version  
         - name: Push NuGet Packages
