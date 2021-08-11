@@ -17,9 +17,9 @@ jobs:
       with:
         dotnet-version: 3.1.200
     - name: Init Directory
-      run: cd /home/runner/work/Grpc.Gateway/Grpc.Gateway/src/Grpc.Gateway/
+      run: ls
     - name: Build Project
-      run: dotnet build --configuration Release
+      run: dotnet build  Grpc.Gateway.csproject --configuration Release
     - name: Create Artifact
       run: dotnet pack Grpc.Gateway.sln -o /home/runner/work/nugetpkgs -c Release --no-build
     - name: Upload Artifact
