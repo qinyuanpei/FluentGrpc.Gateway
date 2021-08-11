@@ -1,48 +1,48 @@
-name: .NET Build & Test
+name: Release
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    push:
+      branches:
+      - master
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        configuration: [Release]
-    runs-on: windows-latest
+  build_artifact:    
+    name: Build and upload artifact
+    runs-on: ubuntu-latest
+    
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-
+    - uses: actions/checkout@v1
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.202
-
-    - name: Setup NuGet
-      uses: nuget/setup-nuget@v1
-      with:
-        nuget-api-key: ${{ secrets.NuGetAPIKey }}
-        nuget-version: '5.x'
-
-    - name: Restore Packages
-      run:  nuget restore
-
+        dotnet-version: 3.1.200
     - name: Build Project
-      run:  dotnet build /p:Configuration=$env:Configuration
-      env:
-        Configuration: ${{ matrix.configuration }}
+      run: dotnet build --configuration Release
+    - name: Create Artifact
+      run: dotnet pack /home/runner/work/Grpc.Gateway/Grpc.Gateway/src/Grpc.Gateway/Grpc.Gateway.sln -o /home/runner/work/nugetpkgs -c Release --no-build
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: nugetpkgs
+        path: /home/runner/work/nugetpkgs  
 
-
-    - name: Run UnitTest
-      run:  dotnet test -c $env:Configuration
-      env:
-        Configuration: ${{ matrix.configuration }}
-
-    - name: Push Package
-      run:  dotnet nuget push .\bin\Release\*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NuGetAPIKey }} --skip-duplicate --no-symbols 1
-
+  release_nuget:
+      name: Release to Nuget
+      needs: build_artifact
+      runs-on: ubuntu-latest
+  
+      steps:
+        - name: Download build artifacts
+          uses: actions/download-artifact@v1
+          with:
+            name: nugetpkgs
+        - name: list nugetpkgs
+          run: ls nugetpkgs
+        - name: test dotnet cmd
+          run: dotnet --version  
+        - name: Release
+          run: |
+            for file in nugetpkgs/*.nupkg
+            do
+              dotnet nuget push $file -k ${{ secrets.NuGetAPIKey }} --skip-duplicate -s https://www.nuget.org/api/v2/package
+            done
