@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Grpc.Gateway.Swagger
+namespace FluentGrpc.Gateway.Swagger
 {
     public class GrpcSwaggerSchemaGenerator
     {

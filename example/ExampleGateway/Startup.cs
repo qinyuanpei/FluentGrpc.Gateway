@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grpc.Gateway;
+using FluentGrpc.Gateway;
 using System.Reflection;
 using Swashbuckle.AspNetCore.Filters;
 using Microsoft.OpenApi.Models;

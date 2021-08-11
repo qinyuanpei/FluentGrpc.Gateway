@@ -1,6 +1,6 @@
 ﻿using Google.Protobuf;
 using Grpc.Core;
-using Grpc.Gateway.Swagger;
+using FluentGrpc.Gateway.Swagger;
 using Grpc.Net.ClientFactory;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +23,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
-namespace Grpc.Gateway
+namespace FluentGrpc.Gateway
 {
     public static class GrpcExtensions
     {

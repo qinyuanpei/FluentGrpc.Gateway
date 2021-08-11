@@ -17,17 +17,17 @@ jobs:
       with:
         dotnet-version: 3.1.200
     - name: Build Project
-      run: dotnet build /home/runner/work/Grpc.Gateway/Grpc.Gateway/src/MagicCodes.GrpcGateway.sln -c Release --source https://api.nuget.org/v3/index.json
+      run: dotnet build /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/src/FluentGrpc.Gateway.sln -c Release --source https://api.nuget.org/v3/index.json
     - name: Create Artifact
-      run: dotnet pack /home/runner/work/Grpc.Gateway/Grpc.Gateway/src/MagicCodes.GrpcGateway.sln -o /home/runner/work/nugetpkgs -c Release --no-build --source https://api.nuget.org/v3/index.json
+      run: dotnet pack /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/src/FluentGrpc.Gateway.sln -o /home/runner/work/nugetpkgs -c Release --no-build --source https://api.nuget.org/v3/index.json
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
-        name: nugetpkgs
-        path: /home/runner/work/nugetpkgs  
+        name: nuget_pkgs
+        path: /home/runner/work/nuget_pkgs  
 
   release_nuget:
-      name: Release to Nuget
+      name: Publish Package
       needs: build_artifact
       runs-on: ubuntu-latest
   
@@ -35,14 +35,14 @@ jobs:
         - name: Download build artifacts
           uses: actions/download-artifact@v1
           with:
-            name: nugetpkgs
-        - name: list nugetpkgs
+            name: nuget_pkgs
+        - name: Show NuGet Packages
           run: ls nugetpkgs
-        - name: test dotnet cmd
+        - name: Show .NET Version
           run: dotnet --version  
-        - name: Release
+        - name: Push NuGet Packages
           run: |
-            for file in nugetpkgs/*.nupkg
+            for file in nuget_pkgs/*.nupkg
             do
               dotnet nuget push $file -k ${{ secrets.NuGetAPIKey }} --skip-duplicate -s https://www.nuget.org/api/v2/package
             done

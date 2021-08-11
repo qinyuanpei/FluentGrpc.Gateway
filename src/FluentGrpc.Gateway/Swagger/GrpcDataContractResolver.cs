@@ -8,7 +8,7 @@ using Google.Protobuf.WellKnownTypes;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Type = System.Type;
 
-namespace Grpc.Gateway.Swagger
+namespace FluentGrpc.Gateway.Swagger
 {
     public sealed class GrpcDataContractResolver : ISerializerDataContractResolver
     {

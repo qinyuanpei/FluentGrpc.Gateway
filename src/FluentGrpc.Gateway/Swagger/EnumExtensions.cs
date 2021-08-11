@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace Grpc.Gateway.Swagger
+namespace FluentGrpc.Gateway.Swagger
 {
     public static class EnumExtensions
     {

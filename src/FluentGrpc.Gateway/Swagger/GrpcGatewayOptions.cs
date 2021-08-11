@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Grpc.Gateway.Swagger
+namespace FluentGrpc.Gateway.Swagger
 {
     [Serializable]
     public class GrpcGatewayOptions
