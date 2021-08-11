@@ -23,8 +23,6 @@ jobs:
       with:
         dotnet-version: 3.1.202
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@2008f912f56e61277eefaac6d1888b750582aa16
     - name: Setup NuGet
       uses: nuget/setup-nuget@v1
       with:
@@ -32,15 +30,19 @@ jobs:
         nuget-version: '5.x'
 
     - name: Restore Packages
-      run: nuget restore
+      run:  nuget restore
 
     - name: Build Project
-      run: msbuild /p:Configuration=$env:Configuration
+      run:  dotnet build /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
 
 
     - name: Run UnitTest
-      run: dotnet test -c $env:Configuration
+      run:  dotnet test -c $env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
+
+    - name: Push Package
+      run:  dotnet nuget push .\bin\Release\*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NuGetAPIKey }} --skip-duplicate --no-symbols 1
+
