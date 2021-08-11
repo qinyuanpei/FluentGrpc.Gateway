@@ -1,0 +1,28 @@
+name: Build
+
+on:
+    push:
+      branches:
+      - master
+
+jobs:
+
+  build_stage:    
+    name: Build Project
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.200
+    - name: Build Project
+      run: dotnet build /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/ExampleGateway.sln -c Release --source https://api.nuget.org/v3/index.json
+    - name: Create Publish
+      run: dotnet publish /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/ExampleGateway.sln -o /home/runner/work/publish -c Release --source https://api.nuget.org/v3/index.json
+    - name: Upload Publish
+      uses: actions/upload-artifact@v1
+      with:
+        name: publish
+        path: /home/runner/work/publish
