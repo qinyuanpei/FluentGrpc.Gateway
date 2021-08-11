@@ -16,10 +16,12 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.200
+    - name: Init Directory
+      run: cd /home/runner/work/Grpc.Gateway/Grpc.Gateway/src/Grpc.Gateway/
     - name: Build Project
       run: dotnet build --configuration Release
     - name: Create Artifact
-      run: dotnet pack /home/runner/work/Grpc.Gateway/Grpc.Gateway/src/Grpc.Gateway/Grpc.Gateway.sln -o /home/runner/work/nugetpkgs -c Release --no-build
+      run: dotnet pack Grpc.Gateway.sln -o /home/runner/work/nugetpkgs -c Release --no-build
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
