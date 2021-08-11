@@ -11,9 +11,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ExampleService;
+using Grpc.Gateway;
+using System.Reflection;
+using Swashbuckle.AspNetCore.Filters;
+using Microsoft.OpenApi.Models;
 
-namespace Grpc.Gateway
+namespace ExampleGateway
 {
     public class Startup
     {
@@ -24,21 +27,14 @@ namespace Grpc.Gateway
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
             services.AddRazorPages();
             services.AddControllers();
-            services.Configure<KestrelServerOptions>(x => x.AllowSynchronousIO = true);
-            services.Configure<IISServerOptions>(x => x.AllowSynchronousIO = true);
-            services.AddGrpcClients(typeof(GreeterService).Assembly, opt =>
-            {
-                opt.Address = new Uri("https://localhost:8001");
-            });
+            services.AddGrpcGateway(Configuration);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -48,7 +44,6 @@ namespace Grpc.Gateway
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -66,10 +61,7 @@ namespace Grpc.Gateway
                 endpoints.MapDefaultControllerRoute();
             });
 
-            app.UseGrpcGateway
-            (
-                typeof(GreeterService).Assembly
-            );
+            app.UseGrpcGateway();
         }
     }
 }

@@ -1,10 +1,19 @@
 ﻿using Google.Protobuf;
 using Grpc.Core;
+using Grpc.Gateway.Swagger;
 using Grpc.Net.ClientFactory;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,12 +21,138 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 
 namespace Grpc.Gateway
 {
     public static class GrpcExtensions
     {
-        public static void UseGrpcGateway(this IApplicationBuilder app, params Assembly[] assemblies)
+        public static void AddGrpcGateway(this IServiceCollection services, IConfiguration configuration, Action<Microsoft.OpenApi.Models.OpenApiInfo> setupAction = null, string sectionName = "GrpcGateway")
+        {
+            var configSection = configuration.GetSection(sectionName);
+            services.Configure<GrpcGatewayOptions>(configSection);
+
+            var swaggerGenOptions = new GrpcGatewayOptions();
+            configSection.Bind(swaggerGenOptions);
+
+            var swaggerGenSetupAction = BuildDefaultSwaggerGenSetupAction(swaggerGenOptions, setupAction);
+            services.AddSwaggerGen(swaggerGenSetupAction);
+
+            // Replace ISwaggerProvider
+            services.Replace(new ServiceDescriptor(
+                typeof(ISwaggerProvider),
+                typeof(GrpcSwaggerProvider),
+                ServiceLifetime.Transient
+            ));
+
+            // Replace IApiDescriptionGroupCollectionProvider
+            services.Replace(new ServiceDescriptor(
+                typeof(IApiDescriptionGroupCollectionProvider),
+                typeof(GrpcApiDescriptionsProvider),
+                ServiceLifetime.Transient
+            ));
+
+            // GrpcDataContractResolver
+            services.AddTransient<GrpcDataContractResolver>();
+
+            // GrpcSwaggerSchemaGenerator
+            services.AddTransient<GrpcSwaggerSchemaGenerator>();
+
+            // Configure GrpcClients
+            services.ConfigureGrpcClients(swaggerGenOptions);
+
+            // AllowSynchronousIO
+            services.Configure<KestrelServerOptions>(x => x.AllowSynchronousIO = true);
+            services.Configure<IISServerOptions>(x => x.AllowSynchronousIO = true);
+        }
+
+        public static void ConfigSwaggerGen(this IServiceCollection services, IConfiguration configuration, Action<SwaggerGenOptions> setupAction, string sectionName = "GrpcGateway")
+        {
+            // User Defined SwaggerGenOptions
+            services.Configure<SwaggerGenOptions>(setupAction);
+
+            //// Default SwaggerGenOptions
+            //var configSection = configuration.GetSection(sectionName);
+            //services.Configure<GrpcGatewayOptions>(configSection);
+
+            //var swaggerGenOptions = new GrpcGatewayOptions();
+            //configSection.Bind(swaggerGenOptions);
+
+            //var defaultSetupAction = BuildDefaultSwaggerGenSetupAction(swaggerGenOptions);
+            //services.Configure<SwaggerGenOptions>(defaultSetupAction);
+        }
+
+        public static void UseGrpcGateway(this IApplicationBuilder app)
+        {
+            var swaggerGenOptions = app.ApplicationServices.GetRequiredService<IOptions<GrpcGatewayOptions>>();
+            var assemblies = swaggerGenOptions.Value.UpstreamInfos.Any() ?
+                swaggerGenOptions.Value.GetAssemblies().ToArray() : new Assembly[] { };
+
+            // Configure Swagger
+            app.ConfigureSwagger(assemblies);
+
+            // Configure Grpc Endpoints
+            app.ConfigureGrpcEndpoints(assemblies);
+        }
+
+        private static Action<SwaggerGenOptions> BuildDefaultSwaggerGenSetupAction(GrpcGatewayOptions swaggerGenOptions, Action<Microsoft.OpenApi.Models.OpenApiInfo> setupAction = null)
+        {
+            Action<SwaggerGenOptions> swaggerDocSetupAction = options =>
+            {
+                if (swaggerGenOptions.UpstreamInfos != null && swaggerGenOptions.UpstreamInfos.Any())
+                {
+                    foreach (var assembly in swaggerGenOptions.GetAssemblies())
+                    {
+                        var assemblyName = assembly.GetName().Name;
+
+                        var openApiInfo = new Microsoft.OpenApi.Models.OpenApiInfo();
+
+                        if (setupAction == null)
+                            setupAction = BuildDefaultOpenApiInfoSetupAction(assemblyName);
+
+                        setupAction(openApiInfo);
+                        openApiInfo.Title = assemblyName;
+                        if (!options.SwaggerGeneratorOptions.SwaggerDocs.ContainsKey(assemblyName))
+                            options.SwaggerDoc(assemblyName, openApiInfo);
+                        if (!options.SwaggerGeneratorOptions.Servers.Any())
+                            options.AddServer(new Microsoft.OpenApi.Models.OpenApiServer() { Url = swaggerGenOptions.BaseUrl });
+                    }
+                }
+            };
+
+            return swaggerDocSetupAction;
+        }
+
+        private static Action<Microsoft.OpenApi.Models.OpenApiInfo> BuildDefaultOpenApiInfoSetupAction(string assemblyName)
+        {
+            Action<Microsoft.OpenApi.Models.OpenApiInfo> setupAction = apiInfo =>
+            {
+                apiInfo.Title = assemblyName;
+                apiInfo.Version = "v1";
+                apiInfo.Contact = new Microsoft.OpenApi.Models.OpenApiContact()
+                {
+                    Name = "飞鸿踏雪",
+                    Email = "qinyuanpei@163.com",
+                    Url = new Uri("https://blog.yuanpei.me"),
+                };
+            };
+
+            return setupAction;
+        }
+
+        private static void ConfigureSwagger(this IApplicationBuilder app, IEnumerable<Assembly> assemblies)
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                foreach (var assembly in assemblies)
+                {
+                    c.SwaggerEndpoint($"/swagger/{assembly.GetName().Name}/swagger.json", $"{assembly.GetName().Name}");
+                }
+            });
+        }
+
+        private static void ConfigureGrpcEndpoints(this IApplicationBuilder app, Assembly[] assemblies)
         {
             var loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
             var logger = loggerFactory.CreateLogger("GrpcGateway");
@@ -26,11 +161,14 @@ namespace Grpc.Gateway
 
             foreach (var clientType in clientTypes)
             {
-                var serviceName = clientType.Name.Replace("Client", "");
+                // Protobuf ServiceInfo
+                var serviceType = assemblies.SelectMany(x => x.DefinedTypes).FirstOrDefault(x => x.DeclaredNestedTypes.Contains(clientType));
+                var serviceDescriptor = serviceType.GetDeclaredProperty("Descriptor").GetValue(null) as Google.Protobuf.Reflection.ServiceDescriptor;
+
                 foreach (var method in clientType.GetMethods().Where(x => x.Name.EndsWith("Async") && x.GetParameters().Length == 4))
                 {
                     var methodName = method.Name.Replace("Async", "");
-                    var grpcRoute = $"{serviceName}/{methodName}";
+                    var grpcRoute = $"{serviceDescriptor.FullName}/{methodName}";
                     logger.LogInformation($"Generate gRPC Gateway: {grpcRoute}");
                     app.UseEndpoints(endpoints => endpoints.MapPost($"{grpcRoute}", async context =>
                     {
@@ -47,29 +185,45 @@ namespace Grpc.Gateway
 
                             var response = JsonConvert.SerializeObject(reply.ResponseAsync.Result);
 
-                            context.Response.Headers.Add("X-Grpc-Service", $"{serviceName}Service");
-                            context.Response.Headers.Add("X-Grpc-Method", $"{methodName}Async");
+                            context.Response.Headers.Add("X-Grpc-Service", $"{serviceDescriptor.FullName}");
+                            context.Response.Headers.Add("X-Grpc-Method", $"{methodName}");
                             context.Response.Headers.Add("X-Grpc-Client", $"{client.GetType().FullName}");
 
-                            await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(response));
                             context.Response.StatusCode = 200;
                             context.Response.ContentType = "application/json";
+                            await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(response));
                         }
                     }));
                 }
             }
         }
 
-        public static void AddGrpcClients(this IServiceCollection services, Assembly assembly, Action<GrpcClientFactoryOptions> configureClient)
+        private static void ConfigureGrpcClients(this IServiceCollection services, GrpcGatewayOptions swaggerGenOptions)
         {
-            var clientTypes = AggregateGrpcClientTypes(assembly);
-            foreach (var clientType in clientTypes)
+            if (swaggerGenOptions.UpstreamInfos != null && swaggerGenOptions.UpstreamInfos.Any())
             {
-                CallAddGrpcClient(clientType, services, configureClient);
+                var upstreamInfos = swaggerGenOptions.UpstreamInfos;
+                foreach (var upstreamInfo in upstreamInfos)
+                {
+                    var assembly = upstreamInfo.GetAssembly();
+                    var assemblyName = assembly.GetName().Name;
+
+                    Action<GrpcClientFactoryOptions> clientSetupAction = options =>
+                    {
+                        options.Address = new Uri(upstreamInfo.BaseUrl);
+                    };
+
+                    var clientTypes = AggregateGrpcClientTypes(assembly);
+                    foreach (var clientType in clientTypes)
+                    {
+                        CallAddGrpcClient(clientType, services, clientSetupAction);
+                    }
+                }
             }
+           
         }
 
-        public static IEnumerable<Type> AggregateGrpcClientTypes(params Assembly[] assemblies)
+        private static IEnumerable<Type> AggregateGrpcClientTypes(params Assembly[] assemblies)
         {
             return assemblies
                 .SelectMany(x => x.DefinedTypes)
