@@ -17,9 +17,9 @@ jobs:
       with:
         dotnet-version: 3.1.200
     - name: Build Project
-      run: dotnet build /home/runner/work/Grpc.Gateway/Grpc.Gateway/src/Grpc.Gateway.sln -c Release --source https://api.nuget.org/v3/index.json
+      run: dotnet build /home/runner/work/Grpc.Gateway/Grpc.Gateway/src/MagicCodes.GrpcGateway.sln -c Release --source https://api.nuget.org/v3/index.json
     - name: Create Artifact
-      run: dotnet pack /home/runner/work/Grpc.Gateway/Grpc.Gateway/src/Grpc.Gateway.sln -o /home/runner/work/nugetpkgs -c Release --no-build --source https://api.nuget.org/v3/index.json
+      run: dotnet pack /home/runner/work/Grpc.Gateway/Grpc.Gateway/src/MagicCodes.GrpcGateway.sln -o /home/runner/work/nugetpkgs -c Release --no-build --source https://api.nuget.org/v3/index.json
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
