@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,9 @@ namespace FluentGrpc.Gateway.Swagger
     public class GrpcGatewayOptions
     {
         public string BaseUrl { get; set; }
+
         public List<UpstreamInfo> UpstreamInfos { get; set; } = new List<UpstreamInfo>();
+
         public IEnumerable<Assembly> GetAssemblies()
         {
             foreach(var upstreamInfo in UpstreamInfos)

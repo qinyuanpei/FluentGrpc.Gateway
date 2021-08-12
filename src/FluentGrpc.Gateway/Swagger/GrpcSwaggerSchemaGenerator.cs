@@ -48,15 +48,38 @@ namespace FluentGrpc.Gateway.Swagger
         private OpenApiPathItem BuildOpenApiPathItem(ApiDescription apiDescription)
         {
             var methodDescriptor = apiDescription.ActionDescriptor.Properties["MethodDescriptor"] as MethodDescriptor;
+
             var apiItem = new OpenApiPathItem();
             var operation = new OpenApiOperation();
-            operation.Tags = new List<OpenApiTag> { new OpenApiTag() { Name = methodDescriptor.Service.FullName, Description = "" } };
+            operation.Tags = new List<OpenApiTag> {
+                new OpenApiTag() {
+                    Name = methodDescriptor.Service.FullName,
+                    Description = ""
+                }
+            };
             operation.Responses.Add("200", CreateResponseBody(methodDescriptor));
             operation.RequestBody = CreateRequestBody(methodDescriptor);
             operation.Description = apiDescription.ActionDescriptor.DisplayName;
             apiItem.AddOperation(OperationType.Post, operation);
 
             return apiItem;
+        }
+
+        private OpenApiRequestBody CreateRequestBody(MethodDescriptor descriptor)
+        {
+            return new OpenApiRequestBody
+            {
+                Content = new Dictionary<string, OpenApiMediaType>
+                {
+                    ["application/json"] = new OpenApiMediaType
+                    {
+                        Schema = new OpenApiSchema
+                        {
+                            Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = descriptor.InputType.Name }
+                        }
+                    }
+                }
+            };
         }
 
         public OpenApiResponse CreateResponseBody(MethodDescriptor descriptor)
@@ -104,35 +127,16 @@ namespace FluentGrpc.Gateway.Swagger
             return response;
         }
 
-        private OpenApiRequestBody CreateRequestBody(MethodDescriptor descriptor)
-        {
-            return new OpenApiRequestBody
-            {
-                Content = new Dictionary<string, OpenApiMediaType>
-                {
-                    ["application/json"] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = descriptor.InputType.Name }
-                        }
-                    }
-                }
-            };
-        }
-
-        // Todo
         private IDictionary<string, OpenApiSchema> CreateSchemas(IList<MessageDescriptor> descriptors)
         {
-            var schemas = new Dictionary<string, OpenApiSchema>();
-            //resolver all the proto object in the current descriptor
-            var temDic = new Dictionary<string, OpenApiSchema>();
+            var currentSchemas = new Dictionary<string, OpenApiSchema>();
+            var referedSchemas = new Dictionary<string, OpenApiSchema>();
 
             foreach (var item in descriptors)
             {
                 var contract = _resolver.ResolveMessage(item);
                 var properties = new Dictionary<string, OpenApiSchema>();
-                GetAllOpenApiShemas(contract, properties, temDic);
+                ResolveOpenApiSchemas(contract, properties, referedSchemas);
 
                 var schema = new OpenApiSchema
                 {
@@ -142,99 +146,94 @@ namespace FluentGrpc.Gateway.Swagger
                     AdditionalPropertiesAllowed = false
                 };
 
-                if (!schemas.ContainsKey(item.ClrType.Name))
-                    schemas.Add(item.ClrType.Name, schema);
+                if (!currentSchemas.ContainsKey(item.ClrType.Name))
+                    currentSchemas.Add(item.ClrType.Name, schema);
             }
 
-            UnionDic(schemas, temDic);
-
-            return schemas;
+            return UnionSchemas(currentSchemas,referedSchemas);
         }
 
-        private void UnionDic(IDictionary<string, OpenApiSchema> first, IDictionary<string, OpenApiSchema> second)
+        private IDictionary<string, OpenApiSchema> UnionSchemas(IDictionary<string, OpenApiSchema> left, IDictionary<string, OpenApiSchema> right)
         {
-            var firstKeys = first?.Select(s => s.Key) ?? Enumerable.Empty<string>();
-            var secondKeys = second?.Select(s => s.Key) ?? Enumerable.Empty<string>();
+            var leftKeys = left?.Select(s => s.Key) ?? Enumerable.Empty<string>();
+            var rightKeys = right?.Select(s => s.Key) ?? Enumerable.Empty<string>();
 
-            var unionResult = firstKeys.Union(secondKeys);
+            var unionKeys = leftKeys.Union(rightKeys);
 
-            foreach (var item in unionResult)
+            foreach (var key in unionKeys)
             {
-                if (!firstKeys.Contains(item))
-                {
-                    first[item] = second[item];
-                }
+                if (!leftKeys.Contains(key))
+                    left[key] = right[key];
             }
+
+            return left;
         }
 
-        private void GetAllOpenApiShemas(DataContract contract, IDictionary<string, OpenApiSchema> properties, IDictionary<string, OpenApiSchema> all)
+        private void ResolveOpenApiSchemas(DataContract contract, IDictionary<string, OpenApiSchema> propertiesSchema, IDictionary<string, OpenApiSchema> referedSchemas)
         {
             if (contract.DataType == DataType.Object)
             {
                 if (contract.ObjectProperties != null && contract.ObjectProperties.Any())
                 {
-                    var temp = contract.ObjectProperties;
-
-                    foreach (var item in temp)
+                    foreach (var dataProperty in contract.ObjectProperties)
                     {
-                        var schema = BuildSchema(item);
+                        var propertySchema = CreateSchemaByDataProperty(dataProperty);
 
-                        if (!properties.ContainsKey(item.Name))
-                            properties.Add(item.Name, schema);
+                        // Property
+                        if (!propertiesSchema.ContainsKey(dataProperty.Name))
+                            propertiesSchema.Add(dataProperty.Name, propertySchema);
 
-                        var data = _resolver.GetDataContractFromType(item.MemberType);
-
-                        GetAllOpenApiShemas(data, schema.Properties, all);
+                        // Property Schema
+                        var memberContract = _resolver.GetDataContractFromType(dataProperty.MemberType);
+                        ResolveOpenApiSchemas(memberContract, propertySchema.Properties, referedSchemas);
                     }
                 }
             }
             else if (contract.DataType == DataType.Array)
             {
-                var data = _resolver.GetDataContractFromType(contract.ArrayItemType);
+                var arrayContract = _resolver.GetDataContractFromType(contract.ArrayItemType);
+                referedSchemas[contract.ArrayItemType.Name] = new OpenApiSchema();
 
-                all[contract.ArrayItemType.Name] = new OpenApiSchema();
-
-                if (data.ObjectProperties != null && data.ObjectProperties.Any())
+                if (arrayContract.ObjectProperties != null && arrayContract.ObjectProperties.Any())
                 {
-                    var temp = data.ObjectProperties;
-
-                    foreach (var item in temp)
+                    foreach (var dataProperty in arrayContract.ObjectProperties)
                     {
-                        var schema = BuildSchema(item);
+                        var propertySchema = CreateSchemaByDataProperty(dataProperty);
 
-                        if (!properties.ContainsKey(item.Name))
-                            properties.Add(item.Name, schema);
+                        // Property
+                        if (!propertiesSchema.ContainsKey(dataProperty.Name))
+                            propertiesSchema.Add(dataProperty.Name, propertySchema);
 
-                        all[contract.ArrayItemType.Name].Properties[item.Name] = schema;
+                        // Refered Scheam
+                        referedSchemas[contract.ArrayItemType.Name].Properties[dataProperty.Name] = propertySchema;
 
-                        var dc = _resolver.GetDataContractFromType(item.MemberType);
-
-                        GetAllOpenApiShemas(dc, schema.Properties, schema.Properties);
+                        // Property Schema
+                        var memeberContract = _resolver.GetDataContractFromType(dataProperty.MemberType);
+                        ResolveOpenApiSchemas(memeberContract, propertySchema.Properties, propertiesSchema);
                     }
                 }
-                else if (contract.DataType == DataType.Dictionary)
+            }
+            else if (contract.DataType == DataType.Dictionary)
+            {
+                var dictContract = _resolver.GetDataContractFromType(contract.DictionaryValueType);
+                referedSchemas[contract.DictionaryValueType.Name] = new OpenApiSchema();
+
+                if (dictContract.ObjectProperties != null && dictContract.ObjectProperties.Any())
                 {
-                    var dicData = _resolver.GetDataContractFromType(contract.DictionaryValueType);
-
-                    all[contract.DictionaryValueType.Name] = new OpenApiSchema();
-
-                    if (data.ObjectProperties != null && data.ObjectProperties.Any())
+                    foreach (var dataProperty in dictContract.ObjectProperties)
                     {
-                        var temp = data.ObjectProperties;
+                        var propertySchema = CreateSchemaByDataProperty(dataProperty);
 
-                        foreach (var item in temp)
-                        {
-                            var schema = BuildSchema(item);
+                        // Property
+                        if (!propertiesSchema.ContainsKey(dataProperty.Name))
+                            propertiesSchema.Add(dataProperty.Name, propertySchema);
 
-                            if (!properties.ContainsKey(item.Name))
-                                properties.Add(item.Name, schema);
+                        // Refered Scheam
+                        referedSchemas[contract.DictionaryValueType.Name].Properties[dataProperty.Name] = propertySchema;
 
-                            all[contract.DictionaryValueType.Name].Properties[item.Name] = schema;
-
-                            var dc = _resolver.GetDataContractFromType(item.MemberType);
-
-                            GetAllOpenApiShemas(dc, schema.Properties, schema.Properties);
-                        }
+                        // Property Schema
+                        var memeberContract = _resolver.GetDataContractFromType(dataProperty.MemberType);
+                        ResolveOpenApiSchemas(memeberContract, propertySchema.Properties, propertySchema.Properties);
                     }
                 }
             }
@@ -263,7 +262,7 @@ namespace FluentGrpc.Gateway.Swagger
             return schemaItem;
         }
 
-        private OpenApiSchema BuildSchema(DataProperty property)
+        private OpenApiSchema CreateSchemaByDataProperty(DataProperty property)
         {
             var dataContract = _resolver.GetDataContractFromType(property.MemberType);
 

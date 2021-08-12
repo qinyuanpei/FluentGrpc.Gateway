@@ -116,6 +116,7 @@ namespace FluentGrpc.Gateway
                             options.SwaggerDoc(assemblyName, openApiInfo);
                         if (!options.SwaggerGeneratorOptions.Servers.Any())
                             options.AddServer(new Microsoft.OpenApi.Models.OpenApiServer() { Url = swaggerGenOptions.BaseUrl });
+
                     }
                 }
             };

@@ -19,9 +19,13 @@ namespace FluentGrpc.Gateway.Swagger
     public class GrpcApiDescriptionsProvider : IApiDescriptionGroupCollectionProvider
     {
         private readonly IEnumerable<Assembly> _assemblies;
+        private readonly GrpcDataContractResolver _resolver;
 
-        public GrpcApiDescriptionsProvider(IOptions<GrpcGatewayOptions> options)
+        public GrpcApiDescriptionsProvider(
+            GrpcDataContractResolver resolver,
+            IOptions<GrpcGatewayOptions> options)
         {
+            _resolver = resolver;
             _assemblies = options.Value.UpstreamInfos.Any() ?
                 options?.Value.GetAssemblies() : new List<Assembly>();
         }
@@ -63,6 +67,7 @@ namespace FluentGrpc.Gateway.Swagger
                     var methodName = method.Name.Replace("Async", "");
                     var methodDescriptor = serviceDescriptor.Methods.FirstOrDefault(x => x.Name == methodName);
 
+                    // ApiDescription
                     var apiDescription = new ApiDescription();
                     apiDescription.GroupName = serviceDescriptor.FullName.Split(new char[] { '.' })[0];
                     apiDescription.HttpMethod = "POST";
@@ -94,52 +99,7 @@ namespace FluentGrpc.Gateway.Swagger
             var requestType = methodInfo.GetParameters()[0].ParameterType;
             var requestInfo = Activator.CreateInstance(requestType) as IMessage;
             foreach (var field in requestInfo.Descriptor.Fields.InFieldNumberOrder())
-            {
-                yield return new ParameterDescriptor() { Name = field.Name, ParameterType = ResolveFieldType(field) };
-            }
-        }
-
-        private Type ResolveFieldType(FieldDescriptor field)
-        {
-            switch (field.FieldType)
-            {
-                case FieldType.Double:
-                    return typeof(double);
-                case FieldType.Float:
-                    return typeof(float);
-                case FieldType.Int64:
-                    return typeof(long);
-                case FieldType.UInt64:
-                    return typeof(ulong);
-                case FieldType.Int32:
-                    return typeof(int);
-                case FieldType.Fixed64:
-                    return typeof(long);
-                case FieldType.Fixed32:
-                    return typeof(int);
-                case FieldType.Bool:
-                    return typeof(bool);
-                case FieldType.String:
-                    return typeof(string);
-                case FieldType.Bytes:
-                    return typeof(string);
-                case FieldType.UInt32:
-                    return typeof(uint);
-                case FieldType.SFixed32:
-                    return typeof(int);
-                case FieldType.SFixed64:
-                    return typeof(long);
-                case FieldType.SInt32:
-                    return typeof(int);
-                case FieldType.SInt64:
-                    return typeof(long);
-                case FieldType.Enum:
-                    return field.EnumType.ClrType;
-                case FieldType.Message:
-                    return field.MessageType.ClrType;
-                default:
-                    throw new InvalidOperationException("Unexpected field type: " + field.FieldType);
-            }
+                yield return new ParameterDescriptor() { Name = field.Name, ParameterType = _resolver.ResolveFieldType(field) };
         }
     }
 }
