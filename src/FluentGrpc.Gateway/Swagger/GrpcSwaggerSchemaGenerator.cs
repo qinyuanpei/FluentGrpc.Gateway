@@ -41,13 +41,12 @@ namespace FluentGrpc.Gateway.Swagger
             foreach (var apiDescriptionGroup in apiDescriptionGroups)
                 foreach (var apiDescription in apiDescriptionGroup.Items)
                     opanApiPaths.Add(apiDescription.RelativePath, BuildOpenApiPathItem(apiDescription));
-                
+
             return opanApiPaths;
         }
 
         private OpenApiPathItem BuildOpenApiPathItem(ApiDescription apiDescription)
         {
-            var serviceDescriptor = apiDescription.Properties["ServiceDescriptor"] as ServiceDescriptor;
             var methodDescriptor = apiDescription.ActionDescriptor.Properties["MethodDescriptor"] as MethodDescriptor;
             var apiItem = new OpenApiPathItem();
             var operation = new OpenApiOperation();
@@ -74,6 +73,7 @@ namespace FluentGrpc.Gateway.Swagger
             if (contracData.DataType == DataType.Boolean || contracData.DataType == DataType.String
                 || contracData.DataType == DataType.Integer || contracData.DataType == DataType.Number)
             {
+                // Boolean/String/Integer/Number
                 responseApiSchemaItem.Type = contracData.DataType.Format();
                 responseApiSchemaItem.Format = contracData.DataFormat;
             }
@@ -84,27 +84,18 @@ namespace FluentGrpc.Gateway.Swagger
 
                 if (contracData.DataType == DataType.Array)
                 {
-                    responseApiSchemaItem.Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.Schema,
-                        Id = contracData.ArrayItemType.Name
-                    };
+                    // Array
+                    responseApiSchemaItem.Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = contracData.ArrayItemType.Name };
                 }
                 else if (contracData.DataType == DataType.Dictionary)
                 {
-                    responseApiSchemaItem.Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.Schema,
-                        Id = contracData.DictionaryValueType.Name
-                    };
+                    // Dictionary
+                    responseApiSchemaItem.Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = contracData.DictionaryValueType.Name };
                 }
                 else
                 {
-                    responseApiSchemaItem.Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.Schema,
-                        Id = descriptor.OutputType.Name
-                    };
+                    // Object
+                    responseApiSchemaItem.Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = descriptor.OutputType.Name };
                 }
             }
 
@@ -123,17 +114,14 @@ namespace FluentGrpc.Gateway.Swagger
                     {
                         Schema = new OpenApiSchema
                         {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.Schema,
-                                Id = descriptor.InputType.Name
-                            }
+                            Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = descriptor.InputType.Name }
                         }
                     }
                 }
             };
         }
 
+        // Todo
         private IDictionary<string, OpenApiSchema> CreateSchemas(IList<MessageDescriptor> descriptors)
         {
             var schemas = new Dictionary<string, OpenApiSchema>();
@@ -142,19 +130,15 @@ namespace FluentGrpc.Gateway.Swagger
 
             foreach (var item in descriptors)
             {
-                var contract = _resolver.ConvertMessage(item);
-                var dic = new Dictionary<string, OpenApiSchema>();
-                GetAllOpenApiShemas(contract, dic, temDic);
+                var contract = _resolver.ResolveMessage(item);
+                var properties = new Dictionary<string, OpenApiSchema>();
+                GetAllOpenApiShemas(contract, properties, temDic);
 
                 var schema = new OpenApiSchema
                 {
                     Type = DataType.Object.Format(),
-                    Properties = dic,
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.Schema,
-                        Id = item.ClrType.Name
-                    },
+                    Properties = properties,
+                    Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = item.ClrType.Name },
                     AdditionalPropertiesAllowed = false
                 };
 
@@ -183,7 +167,7 @@ namespace FluentGrpc.Gateway.Swagger
             }
         }
 
-        private void GetAllOpenApiShemas(DataContract contract, IDictionary<string, OpenApiSchema> dic, IDictionary<string, OpenApiSchema> all)
+        private void GetAllOpenApiShemas(DataContract contract, IDictionary<string, OpenApiSchema> properties, IDictionary<string, OpenApiSchema> all)
         {
             if (contract.DataType == DataType.Object)
             {
@@ -195,8 +179,8 @@ namespace FluentGrpc.Gateway.Swagger
                     {
                         var schema = BuildSchema(item);
 
-                        if (!dic.ContainsKey(item.Name))
-                            dic.Add(item.Name, schema);
+                        if (!properties.ContainsKey(item.Name))
+                            properties.Add(item.Name, schema);
 
                         var data = _resolver.GetDataContractFromType(item.MemberType);
 
@@ -218,8 +202,8 @@ namespace FluentGrpc.Gateway.Swagger
                     {
                         var schema = BuildSchema(item);
 
-                        if (!dic.ContainsKey(item.Name))
-                            dic.Add(item.Name, schema);
+                        if (!properties.ContainsKey(item.Name))
+                            properties.Add(item.Name, schema);
 
                         all[contract.ArrayItemType.Name].Properties[item.Name] = schema;
 
@@ -242,8 +226,8 @@ namespace FluentGrpc.Gateway.Swagger
                         {
                             var schema = BuildSchema(item);
 
-                            if (!dic.ContainsKey(item.Name))
-                                dic.Add(item.Name, schema);
+                            if (!properties.ContainsKey(item.Name))
+                                properties.Add(item.Name, schema);
 
                             all[contract.DictionaryValueType.Name].Properties[item.Name] = schema;
 
@@ -263,11 +247,7 @@ namespace FluentGrpc.Gateway.Swagger
             schemaItem.Items = new OpenApiSchema
             {
                 Type = contract.ArrayItemType.Name,
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.Schema,
-                    Id = contract.ArrayItemType.Name
-                },
+                Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = contract.ArrayItemType.Name },
             };
 
             return schemaItem;
@@ -276,52 +256,41 @@ namespace FluentGrpc.Gateway.Swagger
         private OpenApiSchema CreateDictionarySchema(DataContract contract)
         {
             var schemaItem = new OpenApiSchema();
-
             schemaItem.Type = DataType.Object.Format();
-
             schemaItem.AdditionalPropertiesAllowed = true;
-
-            schemaItem.AdditionalProperties = new OpenApiSchema
-            {
-                Type = contract.DictionaryValueType.Name
-            };
+            schemaItem.AdditionalProperties = new OpenApiSchema { Type = contract.DictionaryValueType.Name };
 
             return schemaItem;
         }
 
         private OpenApiSchema BuildSchema(DataProperty property)
         {
-            var data = _resolver.GetDataContractFromType(property.MemberType);
+            var dataContract = _resolver.GetDataContractFromType(property.MemberType);
 
-            if (data.DataType == DataType.Array)
+            if (dataContract.DataType == DataType.Array)
             {
-                return CreateArraySchema(data);
-
+                return CreateArraySchema(dataContract);
             }
-            else if (data.DataType == DataType.Dictionary)
+            else if (dataContract.DataType == DataType.Dictionary)
             {
-                return CreateDictionarySchema(data);
+                return CreateDictionarySchema(dataContract);
             }
             else
             {
                 var schemaItem = new OpenApiSchema();
-
-                schemaItem.Type = data.DataType.Format();
-
+                schemaItem.Type = dataContract.DataType.Format();
                 return schemaItem;
             }
         }
 
-        public HttpRule GetHttpRule(MethodDescriptor methodDescriptor)
+        public HttpRule CreateHttpRule(MethodDescriptor methodDescriptor)
         {
             var httpRule = methodDescriptor.GetOptions()?.GetExtension(AnnotationsExtensions.Http);
 
             if (httpRule == null)
             {
                 httpRule = new HttpRule();
-
                 httpRule.Post = $"/{methodDescriptor.Service.FullName}/{methodDescriptor.Name}";
-
                 httpRule.Body = "*";
             }
 

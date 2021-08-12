@@ -25,7 +25,7 @@ using System.Text.Json;
 
 namespace FluentGrpc.Gateway
 {
-    public static class GrpcExtensions
+    public static class ServiceCollectionExtensions
     {
         public static void AddGrpcGateway(this IServiceCollection services, IConfiguration configuration, Action<Microsoft.OpenApi.Models.OpenApiInfo> setupAction = null, string sectionName = "GrpcGateway")
         {
@@ -147,7 +147,8 @@ namespace FluentGrpc.Gateway
             {
                 foreach (var assembly in assemblies)
                 {
-                    c.SwaggerEndpoint($"/swagger/{assembly.GetName().Name}/swagger.json", $"{assembly.GetName().Name}");
+                    var assemblyName = assembly.GetName().Name;
+                    c.SwaggerEndpoint($"/swagger/{assemblyName}/swagger.json", $"{assemblyName}");
                 }
             });
         }

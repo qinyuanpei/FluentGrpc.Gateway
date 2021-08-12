@@ -5,24 +5,16 @@ using System.Text;
 
 namespace FluentGrpc.Gateway.Swagger
 {
-    public static class EnumExtensions
+    public static class EnumFormatterExtensions
     {
-        public static string Format(this Enum data, FormatType @type = FormatType.ToLower)
-        {
-            return Get(data, @type).Invoke();
-
-            static Func<string> Get(Enum data, FormatType type)
+        private static Dictionary<FormatType, Func<Enum, string>> _enumFormatterMapping
+            = new Dictionary<FormatType, Func<Enum, string>>()
             {
-                var dic = new Dictionary<FormatType, Func<string>>
-                {
-                    [FormatType.ToLower] = () => data.ToString().ToLower(CultureInfo.InvariantCulture),
-                    [FormatType.None] = () => data.ToString().ToString(CultureInfo.InvariantCulture),
-                    [FormatType.ToUpper] = () => data.ToString().ToUpper(CultureInfo.InvariantCulture)
-                };
-
-                return dic[type];
-            }
-        }
+                [FormatType.None] = data => data.ToString().ToString(CultureInfo.InvariantCulture),
+                [FormatType.ToLower] = data => data.ToString().ToLower(CultureInfo.InvariantCulture),
+                [FormatType.ToUpper] = data => data.ToString().ToUpper(CultureInfo.InvariantCulture)
+            };
+        public static string Format(this Enum data, FormatType @type = FormatType.ToLower) => _enumFormatterMapping[type].Invoke(data);
     }
 
     public enum FormatType
