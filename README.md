@@ -95,7 +95,7 @@ For the `SayHelloAsync()` method of the gRPC Client `Greeter.GreeterClient`, the
 
 At this point, we just need to use Postman or crul to consume the interface. Enjoy :)  
 
-![Call gRpc just like a JSON API](https://raw.fastgit.org/qinyuanpei/FluentGrpc.Gateway/tree/master/example/Screenshots/Swagger.png)
+![Call gRpc just like a JSON API](https://raw.fastgit.org/qinyuanpei/FluentGrpc.Gateway/master/example/Screenshots/Swagger.png)
 
 
 

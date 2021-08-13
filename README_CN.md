@@ -55,6 +55,8 @@ message HelloReply {
 
 * 配置网关
 
+通过 NuGet 安装：`FluentGrpc.Gateway`
+
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
@@ -72,7 +74,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 在配置文件 `appsettings.json` 中添加如下配置：
 
-```
+```json
 "GrpcGateway": {
     "BaseUrl": "https://lcoalhost:5001",
     "UpstreamInfos": [
@@ -97,5 +99,5 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 此时，我们只需要使用 `Postman` 或者 `crul` 以 `POST` 方式调用接口即可，Enjoy :)
 
-![像调用一个 JSON API 一样调用 gRpc](https://raw.fastgit.org/qinyuanpei/FluentGrpc.Gateway/tree/master/example/Screenshots/Swagger.png)
+![像调用一个 JSON API 一样调用 gRpc](https://raw.fastgit.org/qinyuanpei/FluentGrpc.Gateway/master/example/Screenshots/Swagger.png)
 
