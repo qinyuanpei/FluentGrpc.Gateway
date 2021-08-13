@@ -13,24 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - name: checkout
+      uses: actions/checkout@v1
     - name: setup dotnet
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.200
-    - name: echo version
-      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
     - name: dotnet build
       run: dotnet build /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/src/FluentGrpc.Gateway.sln -c Release --source https://api.nuget.org/v3/index.json
-    - name: create release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-      with:
-        tag_name: ${{ steps.get_version.outputs.VERSION }}
-        release_name: ${{ steps.get_version.outputs.VERSION }}
-        draft: false
-        prerelease: false
     - name: dotnet pack
       run: dotnet pack /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/src/FluentGrpc.Gateway.sln -o /home/runner/work/nuget_pkgs -c Release --no-build --source https://api.nuget.org/v3/index.json
     - name: upload artifacts

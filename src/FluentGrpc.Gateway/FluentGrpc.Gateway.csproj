@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+ 5  <Version>1.0.1</Version>
+ 6  <Authors>飞鸿踏雪</Authors>
+ 7  <UseWpf>True</UseWpf>
+ 8  <UseWindowsForms>true</UseWindowsForms>
+ 9  <RepositoryUrl>https://github.com/qinyuanpei/FluentGrpc.Gateway.git</RepositoryUrl>
+10  <PackageProjectUrl>https://github.com/qinyuanpei/FluentGrpc.Gateway</PackageProjectUrl>
+11  <PackageIconUrl></PackageIconUrl>
+12  <RepositoryType>git</RepositoryType>
+13  <Description>FluentGrpc</Description>
+14  <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
