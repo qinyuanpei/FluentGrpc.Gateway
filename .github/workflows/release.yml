@@ -49,4 +49,5 @@ jobs:
             for file in nuget_pkgs/*.nupkg
             do
               dotnet nuget push $file -k ${{ secrets.NUGET_API_KEY }} --skip-duplicate -s https://www.nuget.org/api/v2/package
+              dotnet nuget push $file -k ${{ secrets.ACCESS_TOKEN }} --skip-duplicate -s https://nuget.pkg.github.com/qinyuanpei/index.json 
             done
