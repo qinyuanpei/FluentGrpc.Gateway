@@ -10,6 +10,11 @@ An extension based on `ASP.NET Core` endpoint routing that allows you to call `g
 
 At the same time, a conversion from Protobuf to Swagger, the [OpenAPI](https://swagger.io/specification/) specification, is currently implemented to facilitate access to the parameters and return values of each gRPC service.  
 
+# Main features
+
+* [x] Gateway for gRPC： Call `gRPC` like a `JSON API`,  Similar to [gRPC-JSON-Transcoder](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter) of [Envoy](https://www.envoyproxy.io/)
+* [x] Swagger for gRPC：review and debug the `gRPC` interface with Swagger
+
 # How to use it
 
 * Writre your service
