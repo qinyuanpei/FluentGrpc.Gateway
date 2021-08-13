@@ -1,10 +1,14 @@
-# Grpc.Gateway
+# FluentGrpc.Gateway
 
-[中文](https://github.com/qinyuanpei/Grpc.Gateway/blob/master/README_CN.md) | [English](https://github.com/qinyuanpei/Grpc.Gateway/blob/master/README.md)
+![GitHub](https://img.shields.io/github/license/qinyuanpei/FluentGrpc.Gateway) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/qinyuanpei/FluentGrpc.Gateway/Release) ![Nuget](https://img.shields.io/nuget/v/FluentGrpc.Gateway)
 
-An extension based on ASP.NET Core endpoint routing that allows you to call gRpc just like a JSON API. And the idea is,
+[中文](https://github.com/qinyuanpei/FluentGrpc.Gateway/blob/master/README_CN.md) | [English](https://github.com/qinyuanpei/FluentGrpc.Gateway/blob/master/README.md)
+
+An extension based on `ASP.NET Core` endpoint routing that allows you to call `gRPC` just like a `JSON API`. And the idea is,
 
 > Generate dynamic routes for each gRPC client through reflection and expression tree, and the `JSON` -> `Protobuf` -> `JSON` transformation is completed by this extension. 
+
+At the same time, a conversion from Protobuf to Swagger, the [OpenAPI](https://swagger.io/specification/) specification, is currently implemented to facilitate access to the parameters and return values of each gRPC service.  
 
 # How to use it
 
@@ -40,42 +44,53 @@ Make sure that the project can generate code for both the gRPC client and the se
     <Protobuf Include="Protos\greet.proto" GrpcServices="Both" />
 </ItemGroup>
 ```
-For more details, see：[ExampleService](https://github.com/qinyuanpei/Grpc.Gateway/tree/master/src/Example/ExampleService)
+For more details, see：[GreetGrpc](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/GreetGrpc)
 
 * configure your gateway
+
+Install `FluentGrpc.Gateway` via NuGet 
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
 
     // ...
-    services.Configure<KestrelServerOptions>(x => x.AllowSynchronousIO = true);
-    services.Configure<IISServerOptions>(x => x.AllowSynchronousIO = true);
-    services.AddGrpcClients(typeof(GreeterService).Assembly, opt =>
-    {
-        opt.Address = new Uri("https://localhost:8001");
-    });
+    services.AddGrpcGateway(Configuration);
 }
 
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 {
     // ...
-    app.UseGrpcGateway
-    (
-        typeof(GreeterService).Assembly
-    );
+    app.UseGrpcGateway();
 }
 ```
+Add the following configuration to the configuration file `appsettings.json`：
 
-For more details, see：[ExampleGateway](https://github.com/qinyuanpei/Grpc.Gateway/tree/master/src/Example/ExampleGateway)
+```json
+"GrpcGateway": {
+    "BaseUrl": "https://lcoalhost:5001",
+    "UpstreamInfos": [
+      {
+        "BaseUrl": "https://localhost:8001",
+        "AssemblyName": "CalculateGrpc"
+      },
+      {
+        "BaseUrl": "https://localhost:7001",
+        "AssemblyName": "GreetGrpc"
+      }
+    ]
+  }
+```
+
+For more details, see：[ExampleGateway](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/ExampleGateway)
 
 * Consume your service
 
-For the `SayHelloAsync()` method of the gRPC Client `Greeter.GreeterClient`, the default route generated is: `/Greeter/SayHello`, which removes the `Client` and `Async` parts.  
+For the `SayHelloAsync()` method of the gRPC Client `Greeter.GreeterClient`, the default route generated is: `/greet.Greeter/SayHello`.  
 
 At this point, we just need to use Postman or crul to consume the interface. Enjoy :)  
 
-![Call gRpc just like a JSON API](https://raw.fastgit.org/qinyuanpei/Grpc.Gateway/master/src/Example/Screenshots/Apifox.png)
+![Call gRpc just like a JSON API](https://raw.fastgit.org/qinyuanpei/FluentGrpc.Gateway/tree/master/example/Screenshots/Swagger.png)
 
 
 

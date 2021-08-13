@@ -130,6 +130,11 @@ namespace FluentGrpc.Gateway
             {
                 apiInfo.Title = assemblyName;
                 apiInfo.Version = "v1";
+                apiInfo.License = new Microsoft.OpenApi.Models.OpenApiLicense()
+                {
+                    Name = "The MIT License",
+                    Url = new Uri("https://mit-license.org/")
+                };
                 apiInfo.Contact = new Microsoft.OpenApi.Models.OpenApiContact()
                 {
                     Name = "飞鸿踏雪",

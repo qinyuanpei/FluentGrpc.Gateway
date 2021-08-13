@@ -61,7 +61,7 @@ namespace FluentGrpc.Gateway.Swagger
             }
 
             // Swagger Schemas
-            swaggerDoc.Components.Schemas = _swaggerSchemaGenerator.BuildSchemas(apiDescriptions);
+            swaggerDoc.Components.Schemas = _swaggerSchemaGenerator.GenerateSchemas(apiDescriptions);
             var apiDescriptionsGroups = _apiDescriptionsProvider.ApiDescriptionGroups.Items.Where(x => x.Items.Any(y => y.Properties["ServiceAssembly"]?.ToString() == documentName));
             swaggerDoc.Paths = _swaggerSchemaGenerator.BuildOpenApiPaths(apiDescriptionsGroups);
 

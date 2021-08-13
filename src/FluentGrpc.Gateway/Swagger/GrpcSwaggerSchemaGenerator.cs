@@ -18,7 +18,7 @@ namespace FluentGrpc.Gateway.Swagger
             _resolver = resolver;
         }
 
-        public IDictionary<string, OpenApiSchema> BuildSchemas(IEnumerable<ApiDescription> apiDescriptions)
+        public IDictionary<string, OpenApiSchema> GenerateSchemas(IEnumerable<ApiDescription> apiDescriptions)
         {
             // Method Descriptor
             var methodDescriptor = apiDescriptions.Select(
@@ -32,7 +32,6 @@ namespace FluentGrpc.Gateway.Swagger
 
             return CreateSchemas(descriptors);
         }
-
 
         public OpenApiPaths BuildOpenApiPaths(IEnumerable<ApiDescriptionGroup> apiDescriptionGroups)
         {

@@ -8,6 +8,7 @@ package greet;
 service Greeter {
   // Sends a greeting
   rpc SayHello (HelloRequest) returns (HelloReply);
+  rpc SayFuck (HelloRequestList) returns (HelloReply);
 }
 
 // The request message containing the user's name.
@@ -18,4 +19,18 @@ message HelloRequest {
 // The response message containing the greetings.
 message HelloReply {
   string message = 1;
+}
+
+message HelloRequestList {
+	repeated HelloRequest List = 1;
+    MessageStatus Status = 2;
+}
+
+enum MessageStatus
+{
+    Unknown = 0;
+    Pending = 1;
+    Active = 2;
+    Suspended = 3;
+    Closed = 4;
 }
