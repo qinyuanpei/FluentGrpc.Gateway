@@ -18,11 +18,17 @@ jobs:
       with:
         dotnet-version: 3.1.200
     - name: run GreetGrpc
-      run: dotnet run /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/GreetGrpc/GreetGrpc.csproj -c Release --source https://api.nuget.org/v3/index.json
+      run: |
+        dotnet build --project /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/GreetGrpc/GreetGrpc.csproj -c Release --source https://api.nuget.org/v3/index.json
+        dotnet /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/GreetGrpc/bin/release/netcoreapp3.1/GreetGrpc.dll
     - name: run CalculateGrpc
-      run: dotnet run /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/CalculateGrpc/CalculateGrpc.csproj -c Release --source https://api.nuget.org/v3/index.json
+      run: |
+        dotnet build --project /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/CalculateGrpc/CalculateGrpc.csproj -c Release --source https://api.nuget.org/v3/index.json
+        dotnet /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/CalculateGrpc/bin/release/netcoreapp3.1/CalculateGrpc.dll
     - name: run ExampleGateway
-      run: dotnet run /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/ExampleGateway/ExampleGateway.csproj -c Release --source https://api.nuget.org/v3/index.json
+      run: |
+        dotnet build --project /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/ExampleGateway/ExampleGateway.csproj -c Release --source https://api.nuget.org/v3/index.json
+        dotnet /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/ExampleGateway/bin/release/netcoreapp3.1/ExampleGateway.dll
   
   run_test:
     name: run_test
