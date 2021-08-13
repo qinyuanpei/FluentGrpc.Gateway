@@ -1,46 +1,60 @@
 name: Release
 
 on:
-    push:
-      branches:
-      - master
+  push:
+    tags:
+    - 'v*'
 
 jobs:
+
+  # build artifacts
   build_artifact:    
-    name: Build Artifact
+    name: build artifacts
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v1
-    - name: Setup .NET Core
+    - name: setup dotnet
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.200
-    - name: Build Project
+    - name: echo version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+    - name: dotnet build
       run: dotnet build /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/src/FluentGrpc.Gateway.sln -c Release --source https://api.nuget.org/v3/index.json
-    - name: Create Artifact
+    - name: create release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: ${{ steps.get_version.outputs.VERSION }}
+        draft: false
+        prerelease: false
+    - name: dotnet pack
       run: dotnet pack /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/src/FluentGrpc.Gateway.sln -o /home/runner/work/nuget_pkgs -c Release --no-build --source https://api.nuget.org/v3/index.json
-    - name: Upload Artifact
+    - name: upload artifacts
       uses: actions/upload-artifact@v1
       with:
         name: nuget_pkgs
         path: /home/runner/work/nuget_pkgs  
-
-  release_nuget:
-      name: Publish Package
+  
+  # publish packages
+  publish_packages:
+      name: publish packages
       needs: build_artifact
       runs-on: ubuntu-latest
   
       steps:
-        - name: Download build artifacts
+        - name: download artifacts
           uses: actions/download-artifact@v1
           with:
             name: nuget_pkgs
-        - name: Show NuGet Packages
+        - name: list nuget packages
           run: ls nuget_pkgs
-        - name: Show .NET Version
+        - name: dotnet --version
           run: dotnet --version  
-        - name: Push NuGet Packages
+        - name: push nuget packages
           run: |
             for file in nuget_pkgs/*.nupkg
             do
