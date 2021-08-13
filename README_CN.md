@@ -6,11 +6,11 @@
 
 [中文](https://github.com/qinyuanpei/FluentGrpc.Gateway/blob/master/README_CN.md) | [English](https://github.com/qinyuanpei/FluentGrpc.Gateway/blob/master/README.md)
 
-一个基于 `ASP.NET Core` 终结点路由打造的 `gRPC` 扩展，可以让你像调用一个 `JSON API` 一样调用 `gRPC`。其原理是：
+一个基于 `ASP.NET Core` 终结点路由打造的 `gRPC` 扩展，可以让你像调用一个 `JSON API` 一样调用 `gRPC`。
 
 > 通过反射和表达式树，为每一个 `gRPC` 客户端动态生成 [终结点路由](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-5.0) ，并由该扩展完成从 `JSON` 到 `Protobuf` 再到 `JSON` 的转换。
 
-与此同时，为了方便查阅每个 `gRPC` 服务的参数和返回值，目前实现了 从 `Protobuf` 到 `Swagger`，即 [OpenAPI](https://swagger.io/specification/) 规范的转换。
+与此同时，实现了 从 `Protobuf` 到 `Swagger`，即 [OpenAPI](https://swagger.io/specification/) 规范的转换。
 
 # 安装方法
 

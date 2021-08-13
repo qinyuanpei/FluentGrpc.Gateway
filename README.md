@@ -6,11 +6,11 @@
 
 [中文](https://github.com/qinyuanpei/FluentGrpc.Gateway/blob/master/README_CN.md) | [English](https://github.com/qinyuanpei/FluentGrpc.Gateway/blob/master/README.md)
 
-An extension based on `ASP.NET Core` endpoint routing that allows you to call `gRPC` just like a `JSON API`. And the idea is,
+An extension based on `ASP.NET Core` endpoint routing that allows you to call `gRPC` just like a `JSON API`.
 
 > Generate dynamic routes for each gRPC client through reflection and expression tree, and the `JSON` -> `Protobuf` -> `JSON` transformation is completed by this extension. 
 
-At the same time, a conversion from Protobuf to Swagger, the [OpenAPI](https://swagger.io/specification/) specification, is currently implemented to facilitate access to the parameters and return values of each gRPC service.  
+At the same time, a conversion from Protobuf to Swagger, the [OpenAPI](https://swagger.io/specification/) specification, is currently implemented.
 
 # Installation
 
