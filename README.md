@@ -2,6 +2,8 @@
 
 ![GitHub](https://img.shields.io/github/license/qinyuanpei/FluentGrpc.Gateway) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/qinyuanpei/FluentGrpc.Gateway/Release) ![Nuget](https://img.shields.io/nuget/v/FluentGrpc.Gateway)
 
+![FluentGrpc.Gateway](https://raw.fastgit.org/qinyuanpei/FluentGrpc.Gateway/master/example/Screenshots/FluentGrpc.Gateway.png)
+
 [中文](https://github.com/qinyuanpei/FluentGrpc.Gateway/blob/master/README_CN.md) | [English](https://github.com/qinyuanpei/FluentGrpc.Gateway/blob/master/README.md)
 
 An extension based on `ASP.NET Core` endpoint routing that allows you to call `gRPC` just like a `JSON API`. And the idea is,
@@ -10,14 +12,20 @@ An extension based on `ASP.NET Core` endpoint routing that allows you to call `g
 
 At the same time, a conversion from Protobuf to Swagger, the [OpenAPI](https://swagger.io/specification/) specification, is currently implemented to facilitate access to the parameters and return values of each gRPC service.  
 
-# Main features
+# Installation
 
-* [x] Gateway for gRPC： Call `gRPC` like a `JSON API`,  Similar to [gRPC-JSON-Transcoder](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter) of [Envoy](https://www.envoyproxy.io/)
-* [x] Swagger for gRPC：review and debug the `gRPC` interface with Swagger
+```
+dotnet add package FluentGrpc.Gateway
+```
 
-# How to use it
+# Features
 
-* Writre your service
+* [x] gRPC-Gateway： Call `gRPC` like `JSON API`,  it's similar to [gRPC-JSON-Transcoder](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter) of [Envoy](https://www.envoyproxy.io/).
+* [x] gRPC-Swagger：Review and debug the `gRPC` interface with Swagger
+
+# Basic Usage
+
+* Define gRPC via Protobuf
 
 ```
 syntax = "proto3";
@@ -51,7 +59,7 @@ Make sure that the project can generate code for both the gRPC client and the se
 ```
 For more details, see：[GreetGrpc](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/GreetGrpc)
 
-* configure your gateway
+* Configure gRPC gateway
 
 Install `FluentGrpc.Gateway` via NuGet 
 
@@ -89,7 +97,7 @@ Add the following configuration to the configuration file `appsettings.json`：
 
 For more details, see：[ExampleGateway](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/ExampleGateway)
 
-* Consume your service
+* Consume gRPC like JSON API
 
 For the `SayHelloAsync()` method of the gRPC Client `Greeter.GreeterClient`, the default route generated is: `/greet.Greeter/SayHello`.  
 
