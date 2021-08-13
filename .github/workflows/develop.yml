@@ -1,0 +1,35 @@
+name: build
+
+on:
+    push:
+      branches:
+      - master
+
+jobs:
+
+  run_example:    
+    name: run_example
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup dotnet
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.200
+    - name: run GreetGrpc
+      run: dotnet run /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/GreetGrpc/GreetGrpc.csproj -c Release --source https://api.nuget.org/v3/index.json
+    - name: run CalculateGrpc
+      run: dotnet run /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/CalculateGrpc/CalculateGrpc.csproj -c Release --source https://api.nuget.org/v3/index.json
+    - name: run ExampleGateway
+      run: dotnet run /home/runner/work/FluentGrpc.Gateway/FluentGrpc.Gateway/example/ExampleGateway/ExampleGateway.csproj -c Release --source https://api.nuget.org/v3/index.json
+  
+  run_test:
+    name: run_test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup dotnet
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.200
