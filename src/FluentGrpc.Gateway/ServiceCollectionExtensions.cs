@@ -66,6 +66,43 @@ namespace FluentGrpc.Gateway
             services.Configure<IISServerOptions>(x => x.AllowSynchronousIO = true);
         }
 
+        public static void AddGrpcGateway(this IServiceCollection services, string baseUrl, Action<Microsoft.OpenApi.Models.OpenApiInfo> setupAction = null)
+        {
+            var swaggerGenOptions = new GrpcGatewayOptions();
+            swaggerGenOptions.BaseUrl = baseUrl;
+            swaggerGenOptions.UpstreamInfos.Add(new UpstreamInfo(baseUrl, Assembly.GetExecutingAssembly()));
+
+            var swaggerGenSetupAction = BuildDefaultSwaggerGenSetupAction(swaggerGenOptions, setupAction);
+            services.AddSwaggerGen(swaggerGenSetupAction);
+
+            // Replace ISwaggerProvider
+            services.Replace(new ServiceDescriptor(
+                typeof(ISwaggerProvider),
+                typeof(GrpcSwaggerProvider),
+                ServiceLifetime.Transient
+            ));
+
+            // Replace IApiDescriptionGroupCollectionProvider
+            services.Replace(new ServiceDescriptor(
+                typeof(IApiDescriptionGroupCollectionProvider),
+                typeof(GrpcApiDescriptionsProvider),
+                ServiceLifetime.Transient
+            ));
+
+            // GrpcDataContractResolver
+            services.AddTransient<GrpcDataContractResolver>();
+
+            // GrpcSwaggerSchemaGenerator
+            services.AddTransient<GrpcSwaggerSchemaGenerator>();
+
+            // Configure GrpcClients
+            services.ConfigureGrpcClients(swaggerGenOptions);
+
+            // AllowSynchronousIO
+            services.Configure<KestrelServerOptions>(x => x.AllowSynchronousIO = true);
+            services.Configure<IISServerOptions>(x => x.AllowSynchronousIO = true);
+        }
+
         public static void ConfigSwaggerGen(this IServiceCollection services, IConfiguration configuration, Action<SwaggerGenOptions> setupAction, string sectionName = "GrpcGateway")
         {
             // User Defined SwaggerGenOptions

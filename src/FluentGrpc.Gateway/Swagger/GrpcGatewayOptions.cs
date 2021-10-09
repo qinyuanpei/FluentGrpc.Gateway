@@ -33,6 +33,12 @@ namespace FluentGrpc.Gateway.Swagger
 
         public string AssemblyName { get; set; }
 
+        public UpstreamInfo(string baseUrl, Assembly assembly)
+        {
+            BaseUrl = baseUrl;
+            AssemblyName = $"{assembly.GetName().Name}.dll";
+        }
+
         public Assembly GetAssembly()
         {
             var assemblyFile = $"{AssemblyName}.dll";
