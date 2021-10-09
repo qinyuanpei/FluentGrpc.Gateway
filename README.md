@@ -20,8 +20,8 @@ dotnet add package FluentGrpc.Gateway
 
 # Features
 
-* [x] gRPC-Gateway： Call `gRPC` like `JSON API`,  it's similar to [gRPC-JSON-Transcoder](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter) of [Envoy](https://www.envoyproxy.io/).
-* [x] gRPC-Swagger：Review and debug the `gRPC` interface with Swagger
+* [x] gRPC-Gateway：Call `gRPC` like `JSON API`,  it's similar to [gRPC-JSON-Transcoder](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter) of [Envoy](https://www.envoyproxy.io/).
+* [x] gRPC-Swagger：Review and debug the `gRPC` interface with Swagger.
 
 # Basic Usage
 
@@ -57,7 +57,7 @@ Make sure that the project can generate code for both the gRPC client and the se
     <Protobuf Include="Protos\greet.proto" GrpcServices="Both" />
 </ItemGroup>
 ```
-For more details, see：[GreetGrpc](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/GreetGrpc)
+For more details, see：[GreetGrpc](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/GreetGrpc).
 
 * Configure gRPC gateway
 
@@ -95,7 +95,7 @@ Add the following configuration to the configuration file `appsettings.json`：
   }
 ```
 
-For more details, see：[ExampleGateway](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/ExampleGateway)
+For more details, see：[ExampleGateway](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/ExampleGateway).
 
 * Consume gRPC like JSON API
 
@@ -103,7 +103,7 @@ For the `SayHelloAsync()` method of the gRPC Client `Greeter.GreeterClient`, the
 
 At this point, we just need to use Postman or crul to consume the interface. Enjoy :)  
 
-![Call gRpc just like a JSON API](https://raw.fastgit.org/qinyuanpei/FluentGrpc.Gateway/master/example/Screenshots/Swagger.png)
+![Call gRpc just like a JSON API](https://raw.fastgit.org/qinyuanpei/FluentGrpc.Gateway/master/example/Screenshots/Swagger.png).
 
 
 

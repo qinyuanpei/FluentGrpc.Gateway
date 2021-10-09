@@ -20,8 +20,8 @@ dotnet add package FluentGrpc.Gateway
 
 # 主要特性
 
-* [x] 服务代理： 像调用一个 `JSON API` 一样调用 `gRPC`，类似于 [Envoy](https://www.envoyproxy.io/)  的 [gRPC-JSON Transcoder](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter)
-* [x] 接口文档：通过 Swagger 查阅和调试 `gRPC` 接口
+* [x] 服务代理： 像调用一个 `JSON API` 一样调用 `gRPC`，类似于 [Envoy](https://www.envoyproxy.io/)  的 [gRPC-JSON Transcoder](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter)。
+* [x] 接口文档：通过 Swagger 查阅和调试 `gRPC` 接口。
 
 # 基本使用
 
@@ -96,7 +96,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 ```
 
 
-更多细节，请参考：[ExampleGateway](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/ExampleGateway)
+更多细节，请参考：[ExampleGateway](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/ExampleGateway)。
 
 * 像 JSON API 一样消费 gRPC 服务
 
