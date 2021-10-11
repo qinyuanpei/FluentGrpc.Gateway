@@ -13,6 +13,8 @@ namespace FluentGrpc.Gateway.Swagger
     {
         public string BaseUrl { get; set; }
 
+        public string UrlPrefix { get; set; } = "api";
+
         public List<UpstreamInfo> UpstreamInfos { get; set; } = new List<UpstreamInfo>();
 
         public IEnumerable<Assembly> GetAssemblies()

@@ -32,6 +32,7 @@ namespace FluentGrpc.Gateway
             var configSection = configuration.GetSection(sectionName);
             services.Configure<GrpcGatewayOptions>(configSection);
 
+            // GrpcGatewayOptions
             var swaggerGenOptions = new GrpcGatewayOptions();
             configSection.Bind(swaggerGenOptions);
 
@@ -69,6 +70,8 @@ namespace FluentGrpc.Gateway
         public static void AddGrpcGateway(this IServiceCollection services, string baseUrl, Action<Microsoft.OpenApi.Models.OpenApiInfo> setupAction = null)
         {
             var assembly = Assembly.GetEntryAssembly();
+
+            // GrpcGatewayOptions
             var swaggerGenOptions = new GrpcGatewayOptions();
             swaggerGenOptions.BaseUrl = baseUrl;
             swaggerGenOptions.UpstreamInfos.Add(new UpstreamInfo(baseUrl, assembly));
@@ -208,6 +211,9 @@ namespace FluentGrpc.Gateway
             var loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
             var logger = loggerFactory.CreateLogger("GrpcGateway");
 
+            var swaggerGenOptions = app.ApplicationServices.GetRequiredService<IOptions<GrpcGatewayOptions>>();
+            var urlPrefix = swaggerGenOptions.Value?.UrlPrefix ?? string.Empty;
+
             var clientTypes = AggregateGrpcClientTypes(assemblies);
 
             foreach (var clientType in clientTypes)
@@ -220,6 +226,8 @@ namespace FluentGrpc.Gateway
                 {
                     var methodName = method.Name.Replace("Async", "");
                     var grpcRoute = $"{serviceDescriptor.FullName}/{methodName}";
+                    if (!string.IsNullOrEmpty(urlPrefix))
+                        grpcRoute = $"{urlPrefix}/{grpcRoute}";
                     logger.LogInformation($"Generate gRPC Gateway: {grpcRoute}");
                     app.UseEndpoints(endpoints => endpoints.MapPost($"{grpcRoute}", async context =>
                     {
