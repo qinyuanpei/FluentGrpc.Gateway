@@ -123,7 +123,9 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 For more details, see：[ExampleGateway](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/ExampleGateway).
 
-* Consume gRPC like JSON API
+## Consume gRPC like JSON API
+
+To view a API document based on Swagger, enter the address in your browser：`https://localhost:5001//swagger/index.html`.
 
 For the `SayHelloAsync()` method of the gRPC Client `Greeter.GreeterClient`, the default route generated is: `api/greet.Greeter/SayHello`.  
 
