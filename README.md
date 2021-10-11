@@ -87,6 +87,7 @@ Add the following configuration to the configuration file `appsettings.json`：
 ```json
 "GrpcGateway": {
     "BaseUrl": "https://lcoalhost:5001",
+    "UrlPrefix": "api",
     "UpstreamInfos": [
       {
         "BaseUrl": "https://localhost:8001",

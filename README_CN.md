@@ -1,4 +1,4 @@
-# FluentGrpc.Gateway
+﻿# FluentGrpc.Gateway
 
 ![GitHub](https://img.shields.io/github/license/qinyuanpei/FluentGrpc.Gateway) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/qinyuanpei/FluentGrpc.Gateway/Release) ![Nuget](https://img.shields.io/nuget/v/FluentGrpc.Gateway)
 
@@ -88,6 +88,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 ```json
 "GrpcGateway": {
     "BaseUrl": "https://lcoalhost:5001",
+    "UrlPrefix": "api",
     "UpstreamInfos": [
       {
         "BaseUrl": "https://localhost:8001",
