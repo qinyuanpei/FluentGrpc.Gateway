@@ -25,7 +25,7 @@ dotnet add package FluentGrpc.Gateway
 
 # 基本使用
 
-* 通过 Protobuf 定义 gRPC 服务
+## 通过 Protobuf 定义 gRPC 服务
 
 ```
 syntax = "proto3";
@@ -60,7 +60,13 @@ message HelloReply {
 ```
 更多细节，请参考：[GreetGrpc](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/GreetGrpc)
 
-* 配置 gRPC 网关
+## 配置 gRPC 网关
+
+目前支持下面两种模式：
+
+### 聚合模式
+
+在入口文件 `Startup.cs` 中添加如下配置：
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -93,6 +99,26 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
       }
     ]
   }
+```
+
+### Sidecar 模式
+
+在入口文件 `Startup.cs` 中添加如下配置：
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+
+    // ...
+    services.AddGrpc();
+    services.AddGrpcGateway(Configuration);
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    // ...
+    app.UseGrpcGateway();
+}
 ```
 
 

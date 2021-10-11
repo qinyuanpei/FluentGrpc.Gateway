@@ -1,4 +1,4 @@
-# FluentGrpc.Gateway
+﻿# FluentGrpc.Gateway
 
 ![GitHub](https://img.shields.io/github/license/qinyuanpei/FluentGrpc.Gateway) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/qinyuanpei/FluentGrpc.Gateway/Release) ![Nuget](https://img.shields.io/nuget/v/FluentGrpc.Gateway)
 
@@ -25,7 +25,7 @@ dotnet add package FluentGrpc.Gateway
 
 # Basic Usage
 
-* Define gRPC via Protobuf
+## Define gRPC via Protobuf
 
 ```
 syntax = "proto3";
@@ -59,9 +59,13 @@ Make sure that the project can generate code for both the gRPC client and the se
 ```
 For more details, see：[GreetGrpc](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/GreetGrpc).
 
-* Configure gRPC gateway
+## Configure gRPC gateway
 
-Install `FluentGrpc.Gateway` via NuGet 
+Install `FluentGrpc.Gateway` via NuGet. There are two patterns to configure gRPC gateway：
+
+### Aggregation Pattern
+
+Add the following configuration to the entry file `Startup.cs`:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -77,6 +81,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     app.UseGrpcGateway();
 }
 ```
+
 Add the following configuration to the configuration file `appsettings.json`：
 
 ```json
@@ -95,11 +100,31 @@ Add the following configuration to the configuration file `appsettings.json`：
   }
 ```
 
+### Sidecar Pattern
+
+Add the following configuration to the entry file `Startup.cs`:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+
+    // ...
+    services.AddGrpc();
+    services.AddGrpcGateway("https://localhost:8001");
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    // ...
+    app.UseGrpcGateway();
+}
+```
+
 For more details, see：[ExampleGateway](https://github.com/qinyuanpei/FluentGrpc.Gateway/tree/master/example/ExampleGateway).
 
 * Consume gRPC like JSON API
 
-For the `SayHelloAsync()` method of the gRPC Client `Greeter.GreeterClient`, the default route generated is: `/greet.Greeter/SayHello`.  
+For the `SayHelloAsync()` method of the gRPC Client `Greeter.GreeterClient`, the default route generated is: `api/greet.Greeter/SayHello`.  
 
 At this point, we just need to use Postman or crul to consume the interface. Enjoy :)  
 
