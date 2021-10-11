@@ -112,7 +112,7 @@ public void ConfigureServices(IServiceCollection services)
 
     // ...
     services.AddGrpc();
-    services.AddGrpcGateway(Configuration);
+    services.AddGrpcGateway("https://localhost:8001");
 }
 
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
