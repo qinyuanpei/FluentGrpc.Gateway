@@ -36,7 +36,7 @@ namespace FluentGrpc.Gateway.Swagger
         public UpstreamInfo(string baseUrl, Assembly assembly)
         {
             BaseUrl = baseUrl;
-            AssemblyName = $"{assembly.GetName().Name}.dll";
+            AssemblyName = assembly.GetName().Name;
         }
 
         public Assembly GetAssembly()

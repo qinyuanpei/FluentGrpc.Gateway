@@ -68,9 +68,16 @@ namespace FluentGrpc.Gateway
 
         public static void AddGrpcGateway(this IServiceCollection services, string baseUrl, Action<Microsoft.OpenApi.Models.OpenApiInfo> setupAction = null)
         {
+            var assembly = Assembly.GetEntryAssembly();
             var swaggerGenOptions = new GrpcGatewayOptions();
             swaggerGenOptions.BaseUrl = baseUrl;
-            swaggerGenOptions.UpstreamInfos.Add(new UpstreamInfo(baseUrl, Assembly.GetExecutingAssembly()));
+            swaggerGenOptions.UpstreamInfos.Add(new UpstreamInfo(baseUrl, assembly));
+
+            services.ConfigureAll<GrpcGatewayOptions>(swaggerGenOptions =>
+            {
+                swaggerGenOptions.BaseUrl = baseUrl;
+                swaggerGenOptions.UpstreamInfos.Add(new UpstreamInfo(baseUrl, assembly));
+            });
 
             var swaggerGenSetupAction = BuildDefaultSwaggerGenSetupAction(swaggerGenOptions, setupAction);
             services.AddSwaggerGen(swaggerGenSetupAction);
