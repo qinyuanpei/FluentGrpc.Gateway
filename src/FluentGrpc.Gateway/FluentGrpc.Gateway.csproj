@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
     <PackageId>FluentGrpc.Gateway</PackageId>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <Authors>qinyuanpei</Authors>
     <Company>Company Inc</Company>
     <PackageDescription>FluentGrpc.Gateway</PackageDescription>
