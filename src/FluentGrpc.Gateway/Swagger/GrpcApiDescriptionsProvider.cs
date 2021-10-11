@@ -20,12 +20,14 @@ namespace FluentGrpc.Gateway.Swagger
     {
         private readonly IEnumerable<Assembly> _assemblies;
         private readonly GrpcDataContractResolver _resolver;
+        private IOptions<GrpcGatewayOptions> _options;
 
         public GrpcApiDescriptionsProvider(
             GrpcDataContractResolver resolver,
             IOptions<GrpcGatewayOptions> options)
         {
             _resolver = resolver;
+            _options = options;
             _assemblies = options.Value.UpstreamInfos.Any() ?
                 options?.Value.GetAssemblies() : new List<Assembly>();
         }
@@ -72,6 +74,8 @@ namespace FluentGrpc.Gateway.Swagger
                     apiDescription.GroupName = serviceDescriptor.FullName.Split(new char[] { '.' })[0];
                     apiDescription.HttpMethod = "POST";
                     apiDescription.RelativePath = $"/{serviceDescriptor.FullName}/{methodName}";
+                    if (!string.IsNullOrEmpty(_options.Value?.UrlPrefix))
+                        apiDescription.RelativePath = $"/{_options.Value.UrlPrefix}{apiDescription.RelativePath}";
                     apiDescription.Properties.Add("ServiceDescriptor", serviceDescriptor);
                     apiDescription.Properties.Add("ServiceAssembly", assemblyName);
                     apiDescription.ActionDescriptor = BuildActionDescriptor(method, methodDescriptor);

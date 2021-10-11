@@ -67,18 +67,22 @@ namespace FluentGrpc.Gateway
             services.Configure<IISServerOptions>(x => x.AllowSynchronousIO = true);
         }
 
-        public static void AddGrpcGateway(this IServiceCollection services, string baseUrl, Action<Microsoft.OpenApi.Models.OpenApiInfo> setupAction = null)
+        public static void AddGrpcGateway(this IServiceCollection services, string baseUrl, string urlPrefix = null, Action<Microsoft.OpenApi.Models.OpenApiInfo> setupAction = null)
         {
             var assembly = Assembly.GetEntryAssembly();
 
             // GrpcGatewayOptions
             var swaggerGenOptions = new GrpcGatewayOptions();
             swaggerGenOptions.BaseUrl = baseUrl;
+            if (!string.IsNullOrEmpty(urlPrefix))
+                swaggerGenOptions.UrlPrefix = urlPrefix;
             swaggerGenOptions.UpstreamInfos.Add(new UpstreamInfo(baseUrl, assembly));
 
             services.ConfigureAll<GrpcGatewayOptions>(swaggerGenOptions =>
             {
                 swaggerGenOptions.BaseUrl = baseUrl;
+                if (!string.IsNullOrEmpty(urlPrefix))
+                    swaggerGenOptions.UrlPrefix = urlPrefix;
                 swaggerGenOptions.UpstreamInfos.Add(new UpstreamInfo(baseUrl, assembly));
             });
 
@@ -279,7 +283,7 @@ namespace FluentGrpc.Gateway
                     }
                 }
             }
-           
+
         }
 
         private static IEnumerable<Type> AggregateGrpcClientTypes(params Assembly[] assemblies)

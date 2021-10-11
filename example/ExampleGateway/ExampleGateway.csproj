@@ -5,13 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentGrpc.Gateway" Version="1.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.1.5" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.1.5" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\FluentGrpc.Gateway\FluentGrpc.Gateway.csproj" />
     <ProjectReference Include="..\CalculateGrpc\CalculateGrpc.csproj" />
     <ProjectReference Include="..\GreetGrpc\GreetGrpc.csproj" />
   </ItemGroup>
