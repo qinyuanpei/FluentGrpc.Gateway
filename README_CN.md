@@ -129,7 +129,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 如果希望浏览基于 Swaagger 的 API 文档，可以在浏览器中输入下列地址：`https://localhost:5001//swagger/index.html`。
 
-对于 `gRPC` 客户端 `Greeter.GreeterClient` 的 `SayHelloAsync()` 方法，其生成的默认路由为：`/greet.Greeter/SayHello`。
+对于 `gRPC` 客户端 `Greeter.GreeterClient` 的 `SayHelloAsync()` 方法，其生成的默认路由为：`/api/greet.Greeter/SayHello`。
 
 此时，我们只需要使用 `Postman` 或者 `crul` 以 `POST` 方式调用接口即可，Enjoy :)
 
