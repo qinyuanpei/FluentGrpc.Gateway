@@ -129,7 +129,7 @@ To view a API document based on Swagger, enter the address in your browser：`ht
 
 For the `SayHelloAsync()` method of the gRPC Client `Greeter.GreeterClient`, the default route generated is: `api/greet.Greeter/SayHello`.  
 
-At this point, we just need to use Postman or crul to consume the interface. Enjoy :)  
+At this point, we just need to use `Postman` or `curl` to consume the interface. Enjoy :)  
 
 ![Call gRpc just like a JSON API](https://raw.fastgit.org/qinyuanpei/FluentGrpc.Gateway/master/example/Screenshots/Swagger.png).
 
