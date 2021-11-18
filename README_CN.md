@@ -131,7 +131,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 对于 `gRPC` 客户端 `Greeter.GreeterClient` 的 `SayHelloAsync()` 方法，其生成的默认路由为：`/api/greet.Greeter/SayHello`。
 
-此时，我们只需要使用 `Postman` 或者 `crul` 以 `POST` 方式调用接口即可，Enjoy :)
+此时，我们只需要使用 `Postman` 或者 `curl` 以 `POST` 方式调用接口即可，Enjoy :)
 
 ![像调用一个 JSON API 一样调用 gRpc](https://raw.fastgit.org/qinyuanpei/FluentGrpc.Gateway/master/example/Screenshots/Swagger.png)
 
