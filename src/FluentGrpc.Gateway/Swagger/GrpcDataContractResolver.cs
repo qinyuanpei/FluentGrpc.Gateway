@@ -141,7 +141,7 @@ namespace FluentGrpc.Gateway.Swagger
                 case FieldType.Enum:
                     return field.EnumType.ClrType;
                 case FieldType.Message:
-                    return field.MessageType.ClrType;
+                    return field.MessageType?.ClrType;
                 default:
                     throw new InvalidOperationException("Unexpected field type: " + field.FieldType);
             }

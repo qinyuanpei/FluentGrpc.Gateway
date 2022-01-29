@@ -18,7 +18,8 @@ namespace GreetGrpc
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddGrpc();
-            services.AddGrpcGateway("https://localhost:8001");
+            //services.AddGrpcGateway("https://localhost:8001");
+            services.AddGrpcReflection();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -34,6 +35,7 @@ namespace GreetGrpc
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<GreeterService>();
+                endpoints.MapGrpcReflectionService();
 
                 endpoints.MapGet("/", async context =>
                 {

@@ -12,13 +12,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Protos\reflection.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Google.Api.CommonProtos" Version="2.3.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.34.0" />
     <PackageReference Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.34.0" />
+    <PackageReference Include="Grpc.Reflection" Version="2.43.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.1.5" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.1.5" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Protos\" />
   </ItemGroup>
 
 </Project>

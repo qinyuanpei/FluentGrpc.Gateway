@@ -53,7 +53,8 @@ namespace FluentGrpc.Gateway.Swagger
             };
 
             // Swagger Filters
-            var apiDescriptions = _apiDescriptionsProvider.GetApiDescriptions().Where(x => x.Properties["ServiceAssembly"]?.ToString() == documentName);
+            //var apiDescriptions = _apiDescriptionsProvider.GetApiDescriptions().Where(x => x.Properties["ServiceAssembly"]?.ToString() == documentName);
+            var apiDescriptions = _apiDescriptionsProvider.GetApiDescriptions();
             var filterContext = new DocumentFilterContext(apiDescriptions, _schemaGenerator, schemaRepository);
             foreach (var filter in _options.DocumentFilters)
             {
@@ -62,7 +63,7 @@ namespace FluentGrpc.Gateway.Swagger
 
             // Swagger Schemas
             swaggerDoc.Components.Schemas = _swaggerSchemaGenerator.GenerateSchemas(apiDescriptions);
-            var apiDescriptionsGroups = _apiDescriptionsProvider.ApiDescriptionGroups.Items.Where(x => x.Items.Any(y => y.Properties["ServiceAssembly"]?.ToString() == documentName));
+            var apiDescriptionsGroups = _apiDescriptionsProvider.ApiDescriptionGroups.Items;
             swaggerDoc.Paths = _swaggerSchemaGenerator.BuildOpenApiPaths(apiDescriptionsGroups);
 
             return swaggerDoc;

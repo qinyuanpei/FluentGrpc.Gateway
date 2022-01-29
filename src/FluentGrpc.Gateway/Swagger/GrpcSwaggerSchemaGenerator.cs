@@ -90,8 +90,15 @@ namespace FluentGrpc.Gateway.Swagger
             };
 
             var responseApiSchemaItem = new OpenApiSchema();
-
-            var contracData = _resolver.GetDataContractForType(descriptor.OutputType.ClrType);
+            DataContract contracData = null;
+            if (descriptor.OutputType.ClrType == null)
+            {
+                contracData = _resolver.ResolveMessage(descriptor.OutputType);
+            }
+            else
+            {
+                contracData = _resolver.GetDataContractForType(descriptor.OutputType.ClrType);
+            }
             if (contracData.DataType == DataType.Boolean || contracData.DataType == DataType.String
                 || contracData.DataType == DataType.Integer || contracData.DataType == DataType.Number)
             {
@@ -141,12 +148,16 @@ namespace FluentGrpc.Gateway.Swagger
                 {
                     Type = DataType.Object.Format(),
                     Properties = properties,
-                    Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = item.ClrType.Name },
+                    Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = item.ClrType == null?item.Name:item.ClrType.Name },
                     AdditionalPropertiesAllowed = false
                 };
 
-                if (!currentSchemas.ContainsKey(item.ClrType.Name))
+                if (item.ClrType != null && !currentSchemas.ContainsKey(item.ClrType.Name))
                     currentSchemas.Add(item.ClrType.Name, schema);
+                else if (!currentSchemas.ContainsKey(item.Name))
+                {
+                    currentSchemas.Add(item.Name, schema);
+                }
             }
 
             return UnionSchemas(currentSchemas,referedSchemas);

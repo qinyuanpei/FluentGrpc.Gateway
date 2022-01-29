@@ -15,6 +15,8 @@ using FluentGrpc.Gateway;
 using System.Reflection;
 using Swashbuckle.AspNetCore.Filters;
 using Microsoft.OpenApi.Models;
+using FluentGrpc.Gateway.ApiDescriptors;
+using Grpc.Reflection.V1Alpha;
 
 namespace ExampleGateway
 {
@@ -31,12 +33,23 @@ namespace ExampleGateway
         {
             services.AddMvc();
             services.AddRazorPages();
+            services.AddGrpcClient<ServerReflection.ServerReflectionClient>(option =>
+            {
+                option.Address = new Uri("http://localhost:8000");
+            });
             services.AddControllers();
+            services.AddTransient<ServerReflectionApiDescriptionProvider>();
             services.AddGrpcGateway(Configuration);
+
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime applicationLifetime)
         {
+            applicationLifetime.ApplicationStarted.Register(() =>
+            {
+                var provider = app.ApplicationServices.GetService<ServerReflectionApiDescriptionProvider>();
+                var apiDescriptions = provider.ApiDescriptionGroups.Items;
+            });
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

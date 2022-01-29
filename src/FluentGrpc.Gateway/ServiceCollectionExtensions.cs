@@ -22,6 +22,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using FluentGrpc.Gateway.ApiDescriptors;
 
 namespace FluentGrpc.Gateway
 {
@@ -49,7 +50,7 @@ namespace FluentGrpc.Gateway
             // Replace IApiDescriptionGroupCollectionProvider
             services.Replace(new ServiceDescriptor(
                 typeof(IApiDescriptionGroupCollectionProvider),
-                typeof(GrpcApiDescriptionsProvider),
+                typeof(ServerReflectionApiDescriptionProvider),
                 ServiceLifetime.Transient
             ));
 
@@ -99,7 +100,7 @@ namespace FluentGrpc.Gateway
             // Replace IApiDescriptionGroupCollectionProvider
             services.Replace(new ServiceDescriptor(
                 typeof(IApiDescriptionGroupCollectionProvider),
-                typeof(GrpcApiDescriptionsProvider),
+                typeof(ServerReflectionApiDescriptionProvider),
                 ServiceLifetime.Transient
             ));
 
